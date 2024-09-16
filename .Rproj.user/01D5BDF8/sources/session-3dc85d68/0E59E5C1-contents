@@ -10,12 +10,10 @@ ui <- page_sidebar(
       max=50,
       value = 30
     ),
-    selectInput(
+    checkboxGroupInput(
       inputId = "fruits",
       label= "Choose a Fruit",
       choices = c("All","Apple", "Orange", "Banana"),
-      selected="All",
-      multiple = TRUE
     )
   ),
   plotOutput(outputId = "displot")
