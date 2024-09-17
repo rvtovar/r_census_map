@@ -1,0 +1,86 @@
+---
+title: "Learning"
+author: "Rose Tovar"
+date: "2024-09-17"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(shiny)
+library(bslib)
+```
+
+```{r echo = FALSE}
+# Define UI for app that draws a histogram ----
+library(shiny)
+library(bslib)
+library(maps)
+library(mapproj)
+
+counties <- readRDS("data/counties.RDS")
+source("helpers.R")
+
+ui <- page_sidebar(
+  title="Census Dashbaord",
+  sidebar =sidebar(
+    helpText(
+      "This is a sidebar you will use for solving the following"
+    ),
+    textInput(
+      inputId = "name",
+      label = "Enter Name",
+      placeholder = "Name",
+      value="User"
+    ),
+    selectInput(
+      inputId="demo",
+      label="Choose Demographic",
+      choices = c(
+        "White" = "white",
+        "Black" = "black",
+        "Hispanic" = "hispanic",
+        "Asian" = "asian"
+      ),
+      selected = "Hispanic"
+    ),
+    sliderInput(
+      "percents",
+      "Choose Percentage Range",
+      min=0,
+      max=100,
+      value=c(0,100)
+    )
+  ),
+  htmlOutput("welcome"),
+  card(
+    card_header("Census Map"),
+    card_body(
+      plotOutput("map")
+    )
+  )
+)
+
+server <- function(input,output,session){
+    output$welcome <- renderUI({
+      HTML(paste0(
+        "<h2>Welcome ",input$name,"</h2>"
+      ))
+    })
+    
+  
+    output$map <- renderPlot({
+      data <- switch(
+        input$demo , 
+        "white" = counties$white,
+        "black" = counties$black,
+        "hispanic" = counties$hispanic,
+        "asian" = counties$asian
+      )
+      percent_map(data, "purple", paste("%", input$demo), min=input$percents[1], max=input$percents[2])
+    })
+
+}
+
+shinyApp(ui,server)
+```
